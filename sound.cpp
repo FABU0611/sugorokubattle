@@ -271,6 +271,15 @@ void PlaySound(int index, int loopCount)
 	g_apSourceVoice[index]->Start(0);
 }
 
+bool IsSoundPlaying(int index)
+{
+	XAUDIO2_VOICE_STATE xa2state;
+
+	// èÛë‘éÊìæ
+	g_apSourceVoice[index]->GetState(&xa2state);
+
+	return (xa2state.BuffersQueued != 0);
+}
 /*------------------------------------------------------------------------------
    âπê∫ÇÃí‚é~
 ------------------------------------------------------------------------------*/

@@ -2,8 +2,8 @@
 //20106_田中蓮
 //23_12_05
 #include "result.h"
-#include "input.h"
 #include "renderer.h"
+#include "inputx.h"
 #include "sprite.h"
 #include "texture.h"
 #include "scene.h"
@@ -75,7 +75,8 @@ void UpdateResult(void)
 	UpdateClearrunk();
 
 	//spaceキーでタイトルに戻る
-	if (GetKeyboardTrigger(DIK_SPACE) && GetFadeState() == FADE_NONE){
+	if (GetKeyboardTrigger(DIK_SPACE) && GetFadeState() == FADE_NONE ||
+		IsButtonTriggered(0, XINPUT_GAMEPAD_A) && GetFadeState() == FADE_NONE){
 		SetFadeColor(0.0f, 0.0f, 0.0f);
 		SceneFadeIn(SCENE_TITLE, 0.03f);
 	}

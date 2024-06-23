@@ -2,7 +2,6 @@
 //20106_“c’†˜@
 //23_06_30
 #include "star.h"
-#include "input.h"
 #include "renderer.h"
 #include "sprite.h"
 #include "texture.h"

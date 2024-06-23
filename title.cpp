@@ -2,8 +2,8 @@
 //20106_田中蓮
 //23_06_30
 #include "title.h"
-#include "input.h"
 #include "renderer.h"
+#include "inputx.h"
 #include "sprite.h"
 #include "texture.h"
 
@@ -109,7 +109,8 @@ void UpdateTitle(void)
 		if (GetFadeState() == FADE_NONE) {
 			g_Phase = TP_LOGO;
 		}
-		if (GetKeyboardTrigger(DIK_RETURN)) {
+		if (GetKeyboardTrigger(DIK_RETURN) ||
+			IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 			g_Phase = TP_LOOP;
 		}
 		break;
@@ -119,7 +120,8 @@ void UpdateTitle(void)
 		if(GetEndLerpLogo()){
 			g_Phase = TP_PUSH;
 		}
-		if (GetKeyboardTrigger(DIK_SPACE)) {
+		if (GetKeyboardTrigger(DIK_SPACE) ||
+			IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 			g_Phase = TP_LOOP;
 		}
 		break;
@@ -131,7 +133,8 @@ void UpdateTitle(void)
 			g_Phase = TP_LOOP;
 		}
 		//スペースキーが押されたら飛ばす
-		if (GetKeyboardTrigger(DIK_SPACE)) {
+		if (GetKeyboardTrigger(DIK_SPACE) ||
+			IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 			g_Phase = TP_LOOP;
 		}
 		break;
@@ -142,13 +145,16 @@ void UpdateTitle(void)
 		UpdatePushspace();
 		UpdateStar();
 
-		if (GetKeyboardTrigger(DIK_SPACE)) {
+		if (GetKeyboardTrigger(DIK_SPACE) ||
+			IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 			g_Phase = TP_INFO;
 		}
 		break;
 		//説明画面表示
 	case TP_INFO:
-		if (GetKeyboardTrigger(DIK_SPACE)) {
+		UpdatePushspace();
+		if (GetKeyboardTrigger(DIK_SPACE) ||
+			IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 			g_Phase = TP_SCENECHANGE;
 		}
 		break;
@@ -167,14 +173,14 @@ void UpdateTitle(void)
 //=============================================================================
 void DrawTitle(void)
 {
+	DrawSpriteLeftTop(g_BG.tex_no, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
+	DrawPushspace();
 	if (g_Phase == TP_INFO) {
 		DrawSpriteLeftTop(g_INFO.tex_no, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
 	}
 	else {
 		// １枚のポリゴンの頂点とテクスチャ座標を設定
-		DrawSpriteLeftTop(g_BG.tex_no, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
 		DrawStar();
 		DrawLogo();
-		DrawPushspace();
 	}
 }

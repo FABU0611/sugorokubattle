@@ -5,17 +5,22 @@
 //
 //=============================================================================
 #include "main.h"
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#else
+#define DBG_NEW new
+#endif
 #include "renderer.h"
-#include "input.h"
+#include "inputx.h"
 #include "texture.h"
 
 #include "sprite.h"
 #include "scene.h"
 #include "fade.h"
 #include "sound.h"
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
 //*****************************************************************************
 // マクロ定義
 //*****************************************************************************
@@ -48,6 +53,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);	// 無くても良いけど、警告が出る（未使用宣言）
 	UNREFERENCED_PARAMETER(lpCmdLine);		// 無くても良いけど、警告が出る（未使用宣言）
+
+	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	// 時間計測用
 	DWORD dwExecLastTime;
@@ -160,8 +167,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	// 終了処理
 	Uninit();
-	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
-	_CrtDumpMemoryLeaks();
+
+	//_CrtDumpMemoryLeaks();
 	return (int)msg.wParam;
 }
 

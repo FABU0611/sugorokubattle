@@ -33,20 +33,21 @@ protected:
 	int			_sound_no = 0;			//サウンド番号
 	int			_vertexnum = 4;			//頂点数
 	int			_indexnum = 4;			//インデックス数
+	int			_uv = 0;				//UV値
 
 public:
 	TROUT() = default;
-	TROUT(D3DXVECTOR3 pos, TYPE type) :
-		_pos(pos), _type(type), _event(false), _eventend(false) {}
+	TROUT(D3DXVECTOR3 pos, TYPE type, const int& uv) :
+		_pos(pos), _type(type), _event(false), _eventend(false), _uv(uv) {}
 	virtual ~TROUT() {
 		ReleaseVerBuf();
 		ReleaseIndBuf();
 	}
 
-	virtual void Init() = 0 {}
-	virtual void Uninit() = 0 {}
+	virtual void Init();
+	virtual void Uninit();
 	virtual void Update() = 0 {}
-	virtual void Draw() = 0 {}
+	virtual void Draw();
 
 	virtual void Event() = 0 {}
 
@@ -77,6 +78,7 @@ public:
 	void SetEventEnd(const bool& eventend) { _eventend = eventend; }
 	void SetTex(const int& texno) { _tex_no = texno; }
 	void SetSound(const int& soundno) { _sound_no = soundno; }
+	void SetUV(const int& uv) { _uv = uv; }
 
 	void ReleaseVerBuf() {
 		//頂点バッファの解放

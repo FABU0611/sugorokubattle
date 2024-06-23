@@ -29,7 +29,7 @@ const static float ANIME_PTN_V = 1.0f / ANIME_PTN_TATE;
 //*****************************************************************************
 // グローバル変数
 //*****************************************************************************
-static int			g_TexNo = 0;		//テクスチャ番号
+static int			g_TexNo[2];		//テクスチャ番号
 static int			g_Life = 0;			//終了時のライフ
 
 //=============================================================================
@@ -38,7 +38,8 @@ static int			g_Life = 0;			//終了時のライフ
 void InitLife(void)
 {
 	//テクスチャの読み込み
-	g_TexNo = LoadTexture((char*)"data/TEXTURE/number001.png");
+	g_TexNo[0] = LoadTexture((char*)"data/TEXTURE/number001.png");
+	g_TexNo[1] = LoadTexture((char*)"data/TEXTURE/life.png");
 
 	//終了時のライフをもらう
 	g_Life = GetPlayerLife();
@@ -69,12 +70,17 @@ void DrawLife(void)
 	//表示
 	for (int i = 0; i < 2; i++)	{
 		//スコアの描画
-		DrawSprite(g_TexNo,
-			100.0f - (LIFE_WIDTH * i), 70.0f,
+		DrawSprite(g_TexNo[0],
+			200.0f - (LIFE_WIDTH * i), 70.0f,
 			LIFE_WIDTH, LIFE_HEIGHT,
 			ANIME_PTN_U * (life % 10), 0.0f,//UV値の始点
 			ANIME_PTN_U, ANIME_PTN_V);
 
 		life = life / 10;
 	}
+	DrawSprite(g_TexNo[1],
+		80.0f, 70.0f,
+		100.0f, LIFE_HEIGHT,
+		0.0f, 0.0f,//UV値の始点
+		1.0f, 1.0f);
 }

@@ -1,4 +1,4 @@
-//sound.h
+
 #pragma once
 
 #include <windows.h>
@@ -13,3 +13,4 @@ void PlaySound(int index, int loopCount);
 void StopSound(int index);
 void StopSoundAll(void);
 void SetVolume(int index, float vol);
+bool IsSoundPlaying(int index);

@@ -9,6 +9,7 @@
 #include "sound.h"
 #include "game.h"
 
+#include "inputx.h"
 #include "camera.h"
 #include "player.h"
 #include "life.h"
@@ -34,9 +35,12 @@
 #include "polyline.h"
 
 
-static int g_TexNo = 0;
+static int g_TexNoK = 0;
+static int g_TexNoP = 0;
 static int g_SoundNo = 0;
 TROUT_MANAGER* tm;
+bool	g_infoK;
+bool	g_infoP;
 
 //=============================================================================
 // 初期化処理
@@ -97,11 +101,15 @@ void InitGame(){
 	InitCoin();
 
 	//UIテクスチャ読み込み
-	g_TexNo = LoadTexture((char*)"data/TEXTURE/info_game.png");
+	g_TexNoK = LoadTexture((char*)"data/TEXTURE/gameinfo_key.png");
+	g_TexNoP = LoadTexture((char*)"data/TEXTURE/gameinfo_pad.png");
 	//サウンド読み込み
 	g_SoundNo = LoadSound((char*)"data/sound/bgm_game.wav");
 	SetVolume(g_SoundNo, 0.3f);
 	PlaySound(g_SoundNo, -1);
+
+	g_infoK = false;
+	g_infoP = false;
 }
 
 
@@ -143,6 +151,15 @@ void UninitGame(){
 // 更新処理
 //=============================================================================
 void UpdateGame(){
+	if (GetKeyboardTrigger(DIK_TAB)) {
+		g_infoK = !g_infoK;
+	}
+	if (IsButtonTriggered(0, XINPUT_GAMEPAD_START)) {
+		g_infoP = !g_infoP;
+	}
+	if (g_infoK || g_infoP) {
+		return;
+	}
 	// カメラ更新
 	UpdateCamera();
 
@@ -204,8 +221,16 @@ void DrawGame(){
 	//2Dになる(平行投影)
 	SetWorldViewProjection2D();
 
-	//操作ボタン表示
-	DrawSpriteLeftTop(g_TexNo, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
+	if (g_infoK) {
+		//操作ボタン表示
+		DrawSpriteLeftTop(g_TexNoK, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
+		return;
+	}
+	if (g_infoP) {
+		//操作ボタン表示
+		DrawSpriteLeftTop(g_TexNoP, 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 1.0f, 1.0f);
+		return;
+	}
 
 	//プレイヤーの体力を表示
 	DrawLife();

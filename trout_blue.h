@@ -12,13 +12,13 @@ class TROUT_BLUE : public TROUT{
 public:
 	TROUT_BLUE() = default;
 	TROUT_BLUE(D3DXVECTOR3 pos) :
-		TROUT(pos, TYPE_BLUE) {}
+		TROUT(pos, TYPE_BLUE, 1) {}
 	~TROUT_BLUE() {}
 
 	void Init()override;
-	void Uninit()override;
+	void Uninit()override { TROUT::Uninit(); }
 	void Update()override;
-	void Draw()override;
+	void Draw()override{ TROUT::Draw(); }
 
 	void Event()override;
 };

@@ -5,7 +5,6 @@
 #include "renderer.h"
 #include "texture.h"
 #include "model.h"
-#include "input.h"
 #include "sound.h"
 
 #include "piece.h"

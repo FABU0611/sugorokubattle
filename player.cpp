@@ -3,9 +3,9 @@
 //23_12_07
 #include "main.h"
 #include "renderer.h"
+#include "inputx.h"
 #include "texture.h"
 #include "model.h"
-#include "input.h"
 
 #include "camera.h"
 #include "player.h"
@@ -29,10 +29,14 @@ static const int PLAYER_NOHIT_FRAME = 120;			//無敵時間
 static const int WALK_ANIM_ROT = 20;				//歩くアニメーションの手足の角度
 static const int ANIME_NUM = 5;
 
+static const float		STICK_DEADZONE = 0.15f;
+static const float		ROTATE_SPEED = 0.15f;
+
 struct PLAYER{
 	D3DXVECTOR3 pos;		//ポジション
 	D3DXVECTOR3 shot_pos;	//弾が出る位置
 	D3DXVECTOR3 rot;		//角度
+	D3DXVECTOR3 dir;		//角度
 	D3DXVECTOR3 scl;		//スケール
 
 	float		rad;		//当たり判定用半径
@@ -158,9 +162,9 @@ MotionSet WaitMotion = {
 },
 {//頭
 	{{ 0.0f,  0.0f,  0.0f},   0.0f},
-	{{ 0.0f,  0.5f,  0.0f},  60.0f},
+	{{ 0.0f,  0.2f,  0.0f},  60.0f},
 	{{ 0.0f,  0.0f,  0.0f}, 120.0f},
-	{{ 0.0f, -0.5f,  0.0f}, 180.0f},
+	{{ 0.0f, -0.2f,  0.0f}, 180.0f},
 	{{ 0.0f,  0.0f,  0.0f}, 240.0f},
 },
 };
@@ -179,6 +183,8 @@ enum SOUND_NUM {
 
 	sound_max,
 };
+
+static D3DXVECTOR3	g_rotate;
 
 static DX11_MODEL	g_BodyModel;	// モデル読み込み	親
 static DX11_MODEL	g_HeadModel;	// モデル読み込み
@@ -256,6 +262,7 @@ HRESULT InitPlayer(void)
 	g_Body.pos = D3DXVECTOR3(0.0f, -30.0f, -1700.0f);
 	g_Body.shot_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	g_Body.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	g_Body.dir = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	g_Body.scl = D3DXVECTOR3(1.0f, 1.0f, 1.0f);
 
 	g_Body.rad = PLAYER_RAD;
@@ -305,6 +312,7 @@ HRESULT InitPlayer(void)
 	g_LegL.scl = {1.0f, 1.0f, 1.0f};	// プレイヤー左足大きさ情報
 	g_LegL.rot = {0.0f, 0.0f, 0.0f};	// プレイヤー左足回転情報
 
+	g_rotate = { 0.0f, 0.0f, 0.0f };
 
 	g_pMotion = &WaitMotion;
 
@@ -368,6 +376,19 @@ void UpdatePlayer(void)
 	g_Body.speed *= 0.9f;
 
 	// 移動-----------------------------------------------------------------------------------
+	//スティック
+	if (GetThumbLeftY(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftY(0) > STICK_DEADZONE ||
+		GetThumbLeftX(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftX(0) > STICK_DEADZONE) {
+		g_Body.speed = VALUE_MOVE;
+		//スティックの倒した方向を向く
+		g_Body.rot.y = g_Body.front = atan2f(GetThumbLeftY(0), -GetThumbLeftX(0)) + (D3DX_PI * 1.5f) + cam->rot.y;
+		if (g_Body.state != 1) {
+			g_Body.state = 0;
+		}
+	}
+
 	if (GetKeyboardPress(DIK_A)) {
 		g_Body.speed = VALUE_MOVE;							//速度を入れる
 		if (GetKeyboardPress(DIK_W)) {						//左上
@@ -421,7 +442,8 @@ void UpdatePlayer(void)
 	SetPositionShadow(g_Body.shadowID, shadowpos);
 
 	//弾を撃つ
-	if (GetKeyboardTrigger(DIK_M)) {
+	if (GetKeyboardTrigger(DIK_M) ||
+		IsButtonTriggered(0, XINPUT_GAMEPAD_A)) {
 		//向いている方向に撃つ
 		g_Body.front = g_Body.rot.y;
 		SetBullet(g_Body.shot_pos);
@@ -443,6 +465,15 @@ void UpdatePlayer(void)
 			g_Body.state = 0;
 		}
 		if (GetKeyboardTrigger(DIK_D)) {
+			g_Body.state = 0;
+		}
+	}
+	else if (GetThumbLeftY(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftY(0) > STICK_DEADZONE ||
+		GetThumbLeftX(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftX(0) > STICK_DEADZONE) {
+		//歩きモーション中は何もしない
+		if (g_Body.state != 1) {
 			g_Body.state = 0;
 		}
 	}
@@ -492,7 +523,11 @@ void UpdatePlayer(void)
 
 	//歩いた時の音再生-------------------------------------------------------------------
 	if (GetKeyboardPress(DIK_D) || GetKeyboardPress(DIK_W) ||
-		GetKeyboardPress(DIK_S) || GetKeyboardPress(DIK_A)) {
+		GetKeyboardPress(DIK_S) || GetKeyboardPress(DIK_A) ||
+		GetThumbLeftY(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftY(0) > STICK_DEADZONE ||
+		GetThumbLeftX(0) < -STICK_DEADZONE ||				//右スティック
+		GetThumbLeftX(0) > STICK_DEADZONE) {
 		g_Body.walkframe++;
 		if (g_Body.walkframe > 25) {
 			//足音を再生
